@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_investing/HomePage/home_page.dart';
+import 'package:smart_investing/HomePage/settings_page.dart';
+import 'package:smart_investing/HomePage/stock_page.dart';
 
 void main() {
   runApp(const myApp());
