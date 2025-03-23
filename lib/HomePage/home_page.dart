@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:smart_investing/HomePage/chatbot_page.dart';
+import 'package:smart_investing/HomePage/settings_page.dart';
 
 class HomePage extends StatelessWidget {
   final List<Color> gradientColors = [
@@ -38,7 +40,12 @@ class HomePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.settings, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => SettingsPage(),
+                      ));
+
+            },
           ),
         ],
         centerTitle: true,
@@ -57,7 +64,17 @@ class HomePage extends StatelessWidget {
             children: [_buildMarketOverview(), _buildCombinedStockList()],
           ),
         ),
-      ),
+        ),
+        floatingActionButton: FloatingActionButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ChatScreen()), // Ensure ChatScreen exists
+    );
+  },
+  backgroundColor: Color(0xFF2E3192), // Matching app theme color
+  child: Icon(Icons.chat, color: Colors.white),
+),
     );
   }
 
