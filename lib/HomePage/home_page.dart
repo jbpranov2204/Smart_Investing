@@ -2,8 +2,47 @@ import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
   final List<Color> gradientColors = [
-    Color(0xFF2E3192), // Deep Blue
-    Color(0xFF1BFFFF), // Cyan
+    Color(0xFF2E3192).withOpacity(0.9),
+    Color(0xFF1BFFFF).withOpacity(0.8),
+  ];
+
+  final List<List<Color>> containerGradients = [
+    [
+      Color(0xFF1E88E5).withOpacity(0.9),
+      Color(0xFF64B5F6).withOpacity(0.8),
+    ], // Blue
+    [
+      Color(0xFFD81B60).withOpacity(0.9),
+      Color(0xFFFF4081).withOpacity(0.8),
+    ], // Pink
+    [
+      Color(0xFF43A047).withOpacity(0.9),
+      Color(0xFF66BB6A).withOpacity(0.8),
+    ], // Green
+    [
+      Color(0xFF6A1B9A).withOpacity(0.9),
+      Color(0xFFAB47BC).withOpacity(0.8),
+    ], // Purple
+    [
+      Color(0xFFF4511E).withOpacity(0.9),
+      Color(0xFFFF7043).withOpacity(0.8),
+    ], // Orange
+    [
+      Color(0xFF00ACC1).withOpacity(0.9),
+      Color(0xFF26C6DA).withOpacity(0.8),
+    ], // Cyan
+    [
+      Color(0xFFE65100).withOpacity(0.9),
+      Color(0xFFFF9800).withOpacity(0.8),
+    ], // Deep Orange
+    [
+      Color(0xFF00897B).withOpacity(0.9),
+      Color(0xFF26A69A).withOpacity(0.8),
+    ], // Teal
+    [
+      Color(0xFF3949AB).withOpacity(0.9),
+      Color(0xFF5C6BC0).withOpacity(0.8),
+    ], // Indigo
   ];
 
   @override
@@ -49,12 +88,107 @@ class HomePage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFF5F5F5)],
+            colors: [Colors.white, Color(0xFFF5F5F5).withOpacity(0.5)],
           ),
         ),
         child: SingleChildScrollView(
           child: Column(
-            children: [_buildMarketOverview(), _buildCombinedStockList()],
+            children: [
+              _buildMarketOverview(),
+              GridView.count(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                crossAxisCount: 3,
+                childAspectRatio: 0.95, // Slightly taller containers
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                mainAxisSpacing: 8, // Reduced spacing
+                crossAxisSpacing: 8, // Reduced spacing
+                children: List.generate(9, (index) {
+                  final items = [
+                    ('Stocks', Icons.trending_up),
+                    ('Watchlist', Icons.visibility),
+                    ('News', Icons.newspaper),
+                    ('Portfolio', Icons.account_balance_wallet),
+                    ('IPO', Icons.rocket_launch),
+                    ('Mutual Funds', Icons.pie_chart),
+                    ('Crypto', Icons.currency_bitcoin),
+                    ('Learn', Icons.school),
+                    ('More', Icons.more_horiz),
+                  ];
+                  return _buildInfoContainer(
+                    items[index].$1,
+                    items[index].$2,
+                    containerGradients[index],
+                  );
+                }),
+              ),
+              _buildCombinedStockList(),
+              _buildInvestmentResources(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoContainer(String title, IconData icon, List<Color> colors) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: colors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(8), // Smaller radius
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {},
+          child: Stack(
+            fit: StackFit.expand,
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                right: -15,
+                bottom: -15,
+                child: Icon(
+                  icon,
+                  size: 80, // Increased from 70
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              ),
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        icon,
+                        size: 34, // Increased from 28
+                        color: Colors.white,
+                      ),
+                      SizedBox(height: 6), // Increased from 4
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13.5, // Increased from 12
+                          fontWeight: FontWeight.w600, // Made slightly bolder
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -219,9 +353,9 @@ class HomePage extends StatelessWidget {
 
   List<StockData> _getTopGainers() {
     return [
-      StockData('Adani Power', '₹245.60', ),
-      StockData('SBI', '₹567.80', ),
-      StockData('Infosys', '₹1,432.55', ),
+      StockData('Adani Power', '₹245.60'),
+      StockData('SBI', '₹567.80'),
+      StockData('Infosys', '₹1,432.55'),
     ];
   }
 
@@ -232,11 +366,85 @@ class HomePage extends StatelessWidget {
       StockData('ITC', '₹432.10'),
     ];
   }
+
+  Widget _buildInvestmentResources() {
+    final resources = [
+      {
+        'name': 'Moneycontrol',
+        'url': 'https://www.moneycontrol.com',
+        'description': 'Comprehensive financial news and analysis',
+      },
+      {
+        'name': 'Screener.in',
+        'url': 'https://www.screener.in',
+        'description': 'Stock analysis and screening tool',
+      },
+      {
+        'name': 'Tickertape',
+        'url': 'https://www.tickertape.in',
+        'description': 'Modern stock research platform',
+      },
+      {
+        'name': 'Zerodha Varsity',
+        'url': 'https://zerodha.com/varsity',
+        'description': 'Free stock market education',
+      },
+      {
+        'name': 'Trading View',
+        'url': 'https://www.tradingview.com',
+        'description': 'Charts and technical analysis',
+      },
+    ];
+
+    return Container(
+      margin: EdgeInsets.all(16),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 4,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Investment Resources',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2E3192),
+                ),
+              ),
+            ),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: resources.length,
+              separatorBuilder: (context, index) => Divider(height: 1),
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    resources[index]['name']!,
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text(resources[index]['description']!),
+                  trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    // TODO: Implement URL launcher
+                    // Launch resources[index]['url']
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class StockData {
   final String name;
- 
+
   final String change;
 
   StockData(this.name, this.change);
