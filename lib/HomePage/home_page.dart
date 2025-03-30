@@ -80,10 +80,9 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.settings, color: Colors.white),
             onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => SettingsPage(),
-                      ));
-
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (context) => SettingsPage()));
             },
           ),
         ],
@@ -134,6 +133,18 @@ class HomePage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(),
+            ), // Ensure ChatScreen exists
+          );
+        },
+        backgroundColor: Color(0xFF2E3192), // Matching app theme color
+        child: Icon(Icons.chat, color: Colors.white),
       ),
     );
   }
@@ -198,17 +209,7 @@ class HomePage extends StatelessWidget {
             ],
           ),
         ),
-        ),
-        floatingActionButton: FloatingActionButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ChatScreen()), // Ensure ChatScreen exists
-    );
-  },
-  backgroundColor: Color(0xFF2E3192), // Matching app theme color
-  child: Icon(Icons.chat, color: Colors.white),
-),
+      ),
     );
   }
 
