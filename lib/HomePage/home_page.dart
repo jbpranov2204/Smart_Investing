@@ -4,47 +4,47 @@ import 'package:smart_investing/HomePage/settings_page.dart';
 
 class HomePage extends StatelessWidget {
   final List<Color> gradientColors = [
-    Color(0xFF2E3192).withOpacity(0.9),
-    Color(0xFF1BFFFF).withOpacity(0.8),
+    Color(0xFF1E3C72).withOpacity(0.9), // Vibrant Blue
+    Color(0xFF2A5298).withOpacity(0.8), // Deep Sky Blue
   ];
 
   final List<List<Color>> containerGradients = [
     [
-      Color(0xFF1E88E5).withOpacity(0.9),
-      Color(0xFF64B5F6).withOpacity(0.8),
-    ], // Blue
+      Color(0xFF1E3C72).withOpacity(0.9),
+      Color(0xFF2A5298).withOpacity(0.8),
+    ], // Vibrant Blue
     [
-      Color(0xFFD81B60).withOpacity(0.9),
-      Color(0xFFFF4081).withOpacity(0.8),
-    ], // Pink
+      Color(0xFF6A11CB).withOpacity(0.9),
+      Color(0xFF2575FC).withOpacity(0.8),
+    ], // Purple to Blue
     [
-      Color(0xFF43A047).withOpacity(0.9),
-      Color(0xFF66BB6A).withOpacity(0.8),
-    ], // Green
+      Color(0xFF0F9B0F).withOpacity(0.9),
+      Color(0xFF00F260).withOpacity(0.8),
+    ], // Bright Green
     [
-      Color(0xFF6A1B9A).withOpacity(0.9),
-      Color(0xFFAB47BC).withOpacity(0.8),
-    ], // Purple
+      Color(0xFFFF512F).withOpacity(0.9),
+      Color(0xFFDD2476).withOpacity(0.8),
+    ], // Red to Pink
     [
-      Color(0xFFF4511E).withOpacity(0.9),
-      Color(0xFFFF7043).withOpacity(0.8),
-    ], // Orange
+      Color(0xFFFC466B).withOpacity(0.9),
+      Color(0xFF3F5EFB).withOpacity(0.8),
+    ], // Pink to Blue
     [
-      Color(0xFF00ACC1).withOpacity(0.9),
-      Color(0xFF26C6DA).withOpacity(0.8),
-    ], // Cyan
+      Color(0xFF1A2980).withOpacity(0.9),
+      Color(0xFF26D0CE).withOpacity(0.8),
+    ], // Blue to Cyan
     [
-      Color(0xFFE65100).withOpacity(0.9),
-      Color(0xFFFF9800).withOpacity(0.8),
-    ], // Deep Orange
+      Color(0xFFFFA17F).withOpacity(0.9),
+      Color(0xFFFF7E5F).withOpacity(0.8),
+    ], // Orange to Peach
     [
-      Color(0xFF00897B).withOpacity(0.9),
-      Color(0xFF26A69A).withOpacity(0.8),
-    ], // Teal
+      Color(0xFF56CCF2).withOpacity(0.9),
+      Color(0xFF2F80ED).withOpacity(0.8),
+    ], // Light Blue to Dark Blue
     [
-      Color(0xFF3949AB).withOpacity(0.9),
-      Color(0xFF5C6BC0).withOpacity(0.8),
-    ], // Indigo
+      Color(0xFF1E3C72).withOpacity(0.9),
+      Color(0xFF2A5298).withOpacity(0.8),
+    ], // Vibrant Blue
   ];
 
   @override
@@ -89,50 +89,31 @@ class HomePage extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFF5F5F5).withOpacity(0.5)],
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildMarketOverview(),
-              GridView.count(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                crossAxisCount: 3,
-                childAspectRatio: 0.95, // Slightly taller containers
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                mainAxisSpacing: 8, // Reduced spacing
-                crossAxisSpacing: 8, // Reduced spacing
-                children: List.generate(9, (index) {
-                  final items = [
-                    ('Stocks', Icons.trending_up),
-                    ('Watchlist', Icons.visibility),
-                    ('News', Icons.newspaper),
-                    ('Portfolio', Icons.account_balance_wallet),
-                    ('IPO', Icons.rocket_launch),
-                    ('Mutual Funds', Icons.pie_chart),
-                    ('Crypto', Icons.currency_bitcoin),
-                    ('Learn', Icons.school),
-                    ('More', Icons.more_horiz),
-                  ];
-                  return _buildInfoContainer(
-                    items[index].$1,
-                    items[index].$2,
-                    containerGradients[index],
-                  );
-                }),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Check if it's a desktop view (width > 900)
+          final isDesktop = constraints.maxWidth > 900;
+
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.white, Color(0xFFF5F5F5).withOpacity(0.5)],
               ),
-              _buildCombinedStockList(),
-              _buildInvestmentResources(),
-            ],
-          ),
-        ),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  if (isDesktop)
+                    _buildDesktopView(context)
+                  else
+                    _buildMobileView(context),
+                ],
+              ),
+            ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -146,6 +127,105 @@ class HomePage extends StatelessWidget {
         backgroundColor: Color(0xFF2E3192), // Matching app theme color
         child: Icon(Icons.chat, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildDesktopView(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // Top row with market overview and grid items
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Market overview taking 30% of the width
+              Expanded(flex: 30, child: _buildMarketOverview()),
+              SizedBox(width: 16),
+              // Grid taking 70% of the width
+              Expanded(flex: 70, child: _buildDesktopGrid()),
+            ],
+          ),
+          SizedBox(height: 16),
+          // Bottom row with stocks and resources
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Stock lists taking 60% of the width
+              Expanded(flex: 60, child: _buildCombinedStockList()),
+              SizedBox(width: 16),
+              // Resources taking 40% of the width
+              Expanded(flex: 40, child: _buildInvestmentResources()),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopGrid() {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      crossAxisCount: 5, // 5 items per row for desktop
+      childAspectRatio: 1.2, // Wider aspect ratio for desktop
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      children: List.generate(9, (index) {
+        final items = [
+          ('Stocks', Icons.trending_up),
+          ('Watchlist', Icons.visibility),
+          ('News', Icons.newspaper),
+          ('Portfolio', Icons.account_balance_wallet),
+          ('IPO', Icons.rocket_launch),
+          ('Mutual Funds', Icons.pie_chart),
+          ('Crypto', Icons.currency_bitcoin),
+          ('Learn', Icons.school),
+          ('More', Icons.more_horiz),
+        ];
+        return _buildInfoContainer(
+          items[index].$1,
+          items[index].$2,
+          containerGradients[index],
+        );
+      }),
+    );
+  }
+
+  Widget _buildMobileView(BuildContext context) {
+    return Column(
+      children: [
+        _buildMarketOverview(),
+        GridView.count(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          crossAxisCount: 3,
+          childAspectRatio: 0.95, // Slightly taller containers
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          mainAxisSpacing: 8, // Reduced spacing
+          crossAxisSpacing: 8, // Reduced spacing
+          children: List.generate(9, (index) {
+            final items = [
+              ('Stocks', Icons.trending_up),
+              ('Watchlist', Icons.visibility),
+              ('News', Icons.newspaper),
+              ('Portfolio', Icons.account_balance_wallet),
+              ('IPO', Icons.rocket_launch),
+              ('Mutual Funds', Icons.pie_chart),
+              ('Crypto', Icons.currency_bitcoin),
+              ('Learn', Icons.school),
+              ('More', Icons.more_horiz),
+            ];
+            return _buildInfoContainer(
+              items[index].$1,
+              items[index].$2,
+              containerGradients[index],
+            );
+          }),
+        ),
+        _buildCombinedStockList(),
+        _buildInvestmentResources(),
+      ],
     );
   }
 
