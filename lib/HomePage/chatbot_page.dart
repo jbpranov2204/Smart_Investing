@@ -22,7 +22,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages.insert(
           0,
           ChatMessage(
-            text: "👋 Hi! How can I help you? Feel free to ask me anything!",
+            text: "Hi! How can I help you? Feel free to ask me anything!",
             isUser: false,
           ),
         );
@@ -221,7 +221,6 @@ class ChatMessage extends StatelessWidget {
                       p: TextStyle(color: Colors.black87, fontSize: 16),
                       code: TextStyle(
                         backgroundColor: Colors.grey[300],
-                        fontFamily: 'monospace',
                         fontSize: 14,
                       ),
                       codeblockDecoration: BoxDecoration(
