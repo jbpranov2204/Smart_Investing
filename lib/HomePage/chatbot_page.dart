@@ -1,24 +1,7 @@
 import 'package:flutter/material.dart';
-
-
-void main() {
-  runApp(ChatBotApp());
-}
-
-class ChatBotApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'ChatBot UI',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
-      ),
-      home: ChatScreen(),
-    );
-  }
-}
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -28,6 +11,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final List<ChatMessage> _messages = [];
   final TextEditingController _textController = TextEditingController();
+  bool _isTyping = false;
 
   @override
   void initState() {
@@ -51,31 +35,53 @@ class _ChatScreenState extends State<ChatScreen> {
     _textController.clear();
     setState(() {
       _messages.insert(0, ChatMessage(text: text, isUser: true));
+      _isTyping = true;
     });
 
-    // Generate bot reply based on the question
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        _messages.insert(0, ChatMessage(text: _getBotReply(text), isUser: false));
-      });
-    });
+    // Get response from API
+    _getApiResponse(text)
+        .then((response) {
+          setState(() {
+            _isTyping = false;
+            _messages.insert(0, ChatMessage(text: response, isUser: false));
+          });
+        })
+        .catchError((error) {
+          setState(() {
+            _isTyping = false;
+            _messages.insert(
+              0,
+              ChatMessage(
+                text:
+                    "Sorry, I couldn't connect to the server. Please try again later.",
+                isUser: false,
+              ),
+            );
+          });
+          print("API Error: $error");
+        });
   }
 
-  String _getBotReply(String userMessage) {
-    userMessage = userMessage.toLowerCase();
+  Future<String> _getApiResponse(String userMessage) async {
+    final url = Uri.parse('https://yuvakrish-finance.hf.space/api/chat');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'message': userMessage}),
+      );
 
-    if (userMessage.contains("hello") || userMessage.contains("hi")) {
-      return "🤖 Hello! How can I assist you today?";
-    } else if (userMessage.contains("how are you")) {
-      return "😊 I'm just a bot, but I'm always ready to help!";
-    } else if (userMessage.contains("weather")) {
-      return "🌤 The weather is great today! Perfect for going outside.";
-    } else if (userMessage.contains("time")) {
-      return "⏰ The current time is 12:00 PM (dummy time).";
-    } else if (userMessage.contains("your name")) {
-      return "🤖 I'm your friendly chatbot!";
-    } else {
-      return "🤔 That's interesting! I'm still learning, but I'll try my best to help.";
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['response'] ??
+            "I couldn't understand that. Can you try again?";
+      } else {
+        print('API Error: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to get response: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception caught: $e');
+      throw Exception('Error communicating with the API: $e');
     }
   }
 
@@ -105,7 +111,11 @@ class _ChatScreenState extends State<ChatScreen> {
             centerTitle: true,
             title: Text(
               'ChatBot',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
           ),
         ),
@@ -116,9 +126,12 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ListView.builder(
               reverse: true,
               padding: EdgeInsets.all(10.0),
-              itemCount: _messages.length,
+              itemCount: _isTyping ? _messages.length + 1 : _messages.length,
               itemBuilder: (context, index) {
-                return _messages[index];
+                if (_isTyping && index == 0) {
+                  return TypingIndicator();
+                }
+                return _messages[_isTyping ? index - 1 : index];
               },
             ),
           ),
@@ -147,7 +160,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 hintText: 'Type a message...',
                 filled: true,
                 fillColor: Colors.grey[200],
-                contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25.0),
                   borderSide: BorderSide.none,
@@ -182,24 +198,75 @@ class ChatMessage extends StatelessWidget {
       child: Align(
         alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.75,
+          ),
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: isUser ? Colors.blueAccent : Colors.grey[200],
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 4,
-                spreadRadius: 1,
-              ),
+              BoxShadow(color: Colors.black12, blurRadius: 4, spreadRadius: 1),
             ],
           ),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isUser ? Colors.white : Colors.black87,
-              fontSize: 16,
-            ),
+          child:
+              isUser
+                  ? Text(
+                    text,
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  )
+                  : MarkdownBody(
+                    data: text,
+                    styleSheet: MarkdownStyleSheet(
+                      p: TextStyle(color: Colors.black87, fontSize: 16),
+                      code: TextStyle(
+                        backgroundColor: Colors.grey[300],
+                        fontFamily: 'monospace',
+                        fontSize: 14,
+                      ),
+                      codeblockDecoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    selectable: true,
+                  ),
+        ),
+      ),
+    );
+  }
+}
+
+class TypingIndicator extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(color: Colors.black12, blurRadius: 4, spreadRadius: 1),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Typing", style: TextStyle(color: Colors.black54)),
+              SizedBox(width: 8),
+              SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black54),
+                ),
+              ),
+            ],
           ),
         ),
       ),
