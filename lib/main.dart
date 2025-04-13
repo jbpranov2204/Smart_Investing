@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smart_investing/HomePage/home_page.dart';
-
+import 'package:smart_investing/LoginPage/login_page.dart';
 
 void main() {
   runApp(const myApp());
@@ -11,9 +10,6 @@ class myApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomePage(),
-      debugShowCheckedModeBanner: false,
-    );
+    return MaterialApp(home: LoginPageWeb(), debugShowCheckedModeBanner: false);
   }
 }

@@ -22,7 +22,8 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages.insert(
           0,
           ChatMessage(
-            text: "Hi! How can I help you? Feel free to ask me anything!",
+            text:
+                "Hi! How can I assist you today? Feel free to ask me anything!",
             isUser: false,
           ),
         );
@@ -88,23 +89,54 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(70),
+      appBar: _buildAppBar(),
+      body: Center(
         child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF2E3192), Color(0xFF1BFFFF)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(25),
-              bottomRight: Radius.circular(25),
-            ),
-            boxShadow: [
-              BoxShadow(color: Colors.black26, blurRadius: 5, spreadRadius: 2),
+          constraints: BoxConstraints(maxWidth: 800),
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  reverse: true,
+                  padding: EdgeInsets.all(10.0),
+                  itemCount:
+                      _isTyping ? _messages.length + 1 : _messages.length,
+                  itemBuilder: (context, index) {
+                    if (_isTyping && index == 0) {
+                      return TypingIndicator();
+                    }
+                    return _messages[_isTyping ? index - 1 : index];
+                  },
+                ),
+              ),
+              _buildTextComposer(),
             ],
           ),
+        ),
+      ),
+      backgroundColor: Colors.grey[100],
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: Size.fromHeight(80),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF2E3192), Color(0xFF1BFFFF)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(25),
+            bottomRight: Radius.circular(25),
+          ),
+          boxShadow: [
+            BoxShadow(color: Colors.black26, blurRadius: 5, spreadRadius: 2),
+          ],
+        ),
+        child: SafeArea(
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -114,29 +146,11 @@ class _ChatScreenState extends State<ChatScreen> {
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 20,
+                fontSize: 24,
               ),
             ),
           ),
         ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              reverse: true,
-              padding: EdgeInsets.all(10.0),
-              itemCount: _isTyping ? _messages.length + 1 : _messages.length,
-              itemBuilder: (context, index) {
-                if (_isTyping && index == 0) {
-                  return TypingIndicator();
-                }
-                return _messages[_isTyping ? index - 1 : index];
-              },
-            ),
-          ),
-          _buildTextComposer(),
-        ],
       ),
     );
   }
@@ -146,9 +160,7 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 2),
-        ],
+        border: Border(top: BorderSide(color: Colors.grey[300]!)),
       ),
       child: Row(
         children: [
@@ -157,7 +169,7 @@ class _ChatScreenState extends State<ChatScreen> {
               controller: _textController,
               onSubmitted: _handleSubmitted,
               decoration: InputDecoration(
-                hintText: 'Type a message...',
+                hintText: 'Type your message...',
                 filled: true,
                 fillColor: Colors.grey[200],
                 contentPadding: EdgeInsets.symmetric(
